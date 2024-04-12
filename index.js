@@ -14,39 +14,41 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 //eslint-disable-next-line import/no-anonymous-default-export
 // export default async (req, res) => {
 	// const url = req.query.url as string;
-	process.on("unhandledRejection", (reason, promise) => {
-		console.error("Unhandled Rejection at:", promise, "reason:", reason);
-		// You can add additional debugging information here if needed
-	});
-	try {
-		let propertyData = {};
+	async function main() {
+		process.on("unhandledRejection", (reason, promise) => {
+			console.error("Unhandled Rejection at:", promise, "reason:", reason);
+			// You can add additional debugging information here if needed
+		});
+		try {
+			let propertyData = {};
 
-		for (const url of urls) {
-			const browser = await puppeteer.launch({
-				// headless: false,
-				args: [
-					`--window-size=1920,1080`,
-					"--disable-background-timer-throttling",
-					"--disable-backgrounding-occluded-windows",
-					"--disable-renderer-backgrounding",
-				],
-				defaultViewport: {
-					width: 1920,
-					height: 1080,
-				},
-				protocolTimeout: 4000000,
-			});
-			const page = await browser.newPage();
-			const newData = await scrapeUrl(browser, page, url, propertyData); // Retrieve data from scrapeUrl function
-			propertyData = { ...propertyData, ...newData };
-			await browser.close();
+			for (const url of urls) {
+				const browser = await puppeteer.launch({
+					// headless: false,
+					args: [
+						`--window-size=1920,1080`,
+						"--disable-background-timer-throttling",
+						"--disable-backgrounding-occluded-windows",
+						"--disable-renderer-backgrounding",
+					],
+					defaultViewport: {
+						width: 1920,
+						height: 1080,
+					},
+					protocolTimeout: 4000000,
+				});
+				const page = await browser.newPage();
+				const newData = await scrapeUrl(browser, page, url, propertyData); // Retrieve data from scrapeUrl function
+				propertyData = { ...propertyData, ...newData };
+				await browser.close();
+			}
+
+			await fs.writeFile("./scrape-data-date.json", JSON.stringify(propertyData));
+
+	// 		res.status(200).json({ success: true, data: propertyData });
+		} catch (error) {
+			console.log('scraping failed:', error);
 		}
-
-		await fs.writeFile("./scrape-data-date.json", JSON.stringify(propertyData));
-
-// 		res.status(200).json({ success: true, data: propertyData });
-	} catch (error) {
-		console.log('scraping failed:', error);
 	}
 // };
 
@@ -297,3 +299,4 @@ async function scrapeUrl(browser, page, url, propertyData) {
   return tempData;
 }
 
+main();
