@@ -100,7 +100,7 @@ async function scrapeUrl(browser, page, url, propertyData) {
 					'[class*="propertyDescription"]:not([class*="propertyDescriptionWrapper"])'
 				);
 				let propertyTexts = Array.from(propertyDescriptions).map(
-					(description) => description.textContent?.trim()
+					(description) => description.textContent.trim()
 				);
 				propertyTexts = propertyTexts.toString();
 
@@ -131,7 +131,7 @@ async function scrapeUrl(browser, page, url, propertyData) {
 
 					const calendarCaptionText = document.querySelectorAll(
 						"div.CalendarMonth_caption"
-					)[1]?.textContent;
+					)[1].textContent;
 					const month = calendarCaptionText.substring(
 						0,
 						calendarCaptionText.length - 5
@@ -142,22 +142,22 @@ async function scrapeUrl(browser, page, url, propertyData) {
 					);
 					const filteredAriaLabels = Array.from(tdElements).filter((td) => {
 						const ariaLabel = td.getAttribute("aria-label");
-						return ariaLabel?.includes(month) && !ariaLabel?.includes("Not");
+						return ariaLabel.includes(month) && !ariaLabel.includes("Not");
 					});
 
 					const dates = filteredAriaLabels.map((td) => {
 						const ariaLabel = td.getAttribute("aria-label");
-						const dateStartIndex = ariaLabel?.indexOf(",") + 2;
-						const dateEndIndex = ariaLabel?.indexOf(",", dateStartIndex + 1); // Find the index of the next comma after the month
+						const dateStartIndex = ariaLabel.indexOf(",") + 2;
+						const dateEndIndex = ariaLabel.indexOf(",", dateStartIndex + 1); // Find the index of the next comma after the month
 
 						// Extract the full date string
-						const dateString = ariaLabel?.substring(
+						const dateString = ariaLabel.substring(
 							dateStartIndex,
 							dateEndIndex
 						);
 
 						// Format the date as desired (e.g., March 31, 2024)
-						return `${dateString?.trim()}, ${new Date().getFullYear()}`;
+						return `${dateString.trim()}, ${new Date().getFullYear()}`;
 					});
 					allDates.push(dates);
 				}
@@ -185,7 +185,7 @@ async function scrapeUrl(browser, page, url, propertyData) {
 					const returnedData = await handleNewPage(newPage);
 
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-					if (returnedData?.title) {
+					if (returnedData.title) {
 						tempData[returnedData.title] = {
 							...(tempData[returnedData.title] || {}),
 							dates: returnedData.allDates,
@@ -223,18 +223,18 @@ async function scrapeUrl(browser, page, url, propertyData) {
 					);
 
 					const propertyTitle = titleWrapperDiv
-						? titleWrapperDiv.textContent?.trim()
+						? titleWrapperDiv.textContent.trim()
 						: "";
 
 					const propertyData = {
-						propertyType: propertyType ? propertyType.textContent?.trim() : "",
-						address: propertyAddress ? propertyAddress.textContent?.trim() : "",
-						maxNumGuests: propertyGuestsLabel?.textContent
+						propertyType: propertyType ? propertyType.textContent.trim() : "",
+						address: propertyAddress ? propertyAddress.textContent.trim() : "",
+						maxNumGuests: propertyGuestsLabel.textContent
 							? +propertyGuestsLabel.textContent.split(" ")[0]
 							: null,
 						originalNightlyPrice:
 							parseFloat(
-								propertyFooterSpan?.textContent
+								propertyFooterSpan.textContent
 									.replace(/,/g, "")
 									.trim()
 									.slice(1)
@@ -261,7 +261,7 @@ async function scrapeUrl(browser, page, url, propertyData) {
 
 				// eslint-disable-next-line @typescript-eslint/prefer-for-of
 				for (let i = 0; i < divs.length; i++) {
-					const bookNowButton = divs[i]?.querySelector('[data-qa="book-now"]');
+					const bookNowButton = divs[i].querySelector('[data-qa="book-now"]');
 					if (bookNowButton) {
 						bookNowButton.dispatchEvent(
 							new MouseEvent("click", { bubbles: true, button: 1 })
