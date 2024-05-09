@@ -2,14 +2,14 @@ import { scrapeUrl } from "./scrapeUrl";
 import { lauchPuppeteer } from "./utils";
 
 const urls = [
-	//  "https://stayawhilevillas.guestybookings.com/properties",
-	// "https://openairhomes.guestybookings.com/properties",
-	// "https://staywildflower.guestybookings.com/properties",
-	// "https://mybookings.guestybookings.com/properties",
-	// "https://artthaus.guestybookings.com/properties",
-	// "https://abode.guestybookings.com/properties",
-	// "https://goodliferesorts.guestybookings.com/properties?city=San+Diego",
-	// "https://titanbr.guestybookings.com/properties?city=San+Diego",
+	 "https://stayawhilevillas.guestybookings.com/properties",
+	"https://openairhomes.guestybookings.com/properties",
+	"https://staywildflower.guestybookings.com/properties",
+	"https://mybookings.guestybookings.com/properties",
+	"https://artthaus.guestybookings.com/properties",
+	"https://abode.guestybookings.com/properties",
+	"https://goodliferesorts.guestybookings.com/properties?city=San+Diego",
+	"https://titanbr.guestybookings.com/properties?city=San+Diego",
 	"https://alter.guestybookings.com/properties",
 	// "https://cardo.guestybookings.com/properties",
 	// "https://excelsiorstays.guestybookings.com/properties?city=San+Diego&country=United+States",
