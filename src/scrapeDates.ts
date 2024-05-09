@@ -1,9 +1,7 @@
 import type { Page } from "puppeteer";
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export async function scrapeDates(page: Page) {
-	await delay(3000);
+	await new Promise((resolve) => setTimeout(resolve, 3000));
 
 	page.on("console", (msg) => {
 		for (let i = 0; i < msg.args().length; ++i) {
@@ -25,7 +23,8 @@ export async function scrapeDates(page: Page) {
 		const title = propertyTexts.substring(0, titleEndIndex);
 
 		//grab all dates
-		const allDates: Date[] = [];
+		const allDateStrings: string[] = [];
+
 		const expandCalendarButton =
 			document.querySelectorAll<HTMLButtonElement>(
 				'[class*="Button-content"]'
@@ -43,7 +42,7 @@ export async function scrapeDates(page: Page) {
 			try {
 				expandCalendarButton.click();
 			} catch (err) {
-				console.log("error while clicking dates", err);
+				console.log("error while clicking dates:\n", err);
 			}
 
 			await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -65,7 +64,7 @@ export async function scrapeDates(page: Page) {
 				return ariaLabel.includes(month) && !ariaLabel.includes("Not");
 			});
 
-			const dates = filteredAriaLabels.map((td) => {
+			filteredAriaLabels.forEach((td) => {
 				const ariaLabel = td.getAttribute("aria-label")!;
 				const dateStartIndex = ariaLabel.indexOf(",") + 2;
 				const dateEndIndex = ariaLabel.indexOf(",", dateStartIndex + 1); // Find the index of the next comma after the month
@@ -76,31 +75,16 @@ export async function scrapeDates(page: Page) {
 					dateEndIndex
 				);
 
-				console.log(
-					"adding:",
-					`${dateString.trim()}, ${new Date().getFullYear()}`
-				);
+				const fullDateString = `${dateString.trim()}, ${new Date().getFullYear()}`;
 
-				return new Date(
-					`${dateString.trim()}, ${new Date().getFullYear()}`
-				);
+				if (isNaN(new Date(fullDateString).getTime())) {
+					console.log("date is invalid, skipping:", fullDateString);
+				} else {
+					allDateStrings.push(fullDateString);
+				}
 			});
-
-			console.log("unfiltered:", dates);
-
-			console.log(
-				"filtered:",
-				dates.filter((d) => !isNaN(d.getTime())).filter(Boolean)
-			);
-
-			allDates.push(
-				...dates.filter((d) => !isNaN(d.getTime())).filter(Boolean)
-			);
 		}
 
-		return {
-			allDates,
-			title,
-		};
+		return { allDateStrings, title };
 	});
 }

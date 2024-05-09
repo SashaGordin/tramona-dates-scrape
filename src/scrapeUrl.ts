@@ -9,7 +9,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 	const openedPages: Page[] = [];
 	await page.goto(url, { waitUntil: "domcontentloaded" });
-	await delay(3000);
+	await new Promise((resolve) => setTimeout(resolve, 3000));
 
 	let previousScrollHeight = 0;
 	let currentScrollHeight = -1;
@@ -31,7 +31,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			if (element) {
 				element.scrollTo(0, element.scrollHeight);
 			}
-			await delay(1000);
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			return element ? element.scrollHeight : -1;
 		});
@@ -41,7 +41,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 		// });
 	}
 
-	await delay(2000);
+	await new Promise((resolve) => setTimeout(resolve, 2000));
 
 	browser.on("targetcreated", async (target) => {
 		const newPage = await target.page();
@@ -49,12 +49,12 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 
 		openedPages.push(newPage);
 
-		const { title, allDates } = await scrapeDates(newPage);
+		const { title, allDateStrings } = await scrapeDates(newPage);
+
+		const allDates = allDateStrings.map((s) => new Date(s));
 
 		await newPage.close();
 		openedPages.splice(openedPages.indexOf(newPage), 1);
-
-		console.log(allDates);
 
 		const propertyId = await db.query.properties
 			.findFirst({
@@ -62,24 +62,26 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			})
 			.then((res) => res?.id);
 
-		if (propertyId) {
-			console.log(
-				`inserting into ${propertyId}: ${allDates.map((d) =>
-					d.toLocaleDateString()
-				)}`
-			);
-
-			await db.insert(bookedDates).values(
-				allDates.map((d) => ({
-					date: new Date(d),
-					propertyId,
-				}))
-			);
-
-			console.log("inserted");
-		} else {
-			console.log(`property not found: ${title}`);
+		if (!propertyId) {
+			console.log(`property not found, skipping: "${title}"`);
+			return;
 		}
+
+		if (allDates.length === 0) {
+			console.log(
+				`no dates found for property, skipping: "${propertyId}"`
+			);
+			return;
+		}
+
+		await db
+			.insert(bookedDates)
+			.values(allDates.map((date) => ({ date, propertyId })))
+			.onConflictDoNothing();
+
+		console.log(
+			`upserted ${allDates.length} dates to property ${propertyId}`
+		);
 	});
 
 	try {
@@ -127,7 +129,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			}
 		});
 	} catch (err) {
-		console.log("error in original page ", err);
+		console.log("error in original page:\n", err);
 	}
 
 	try {
@@ -168,16 +170,16 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			}
 		});
 	} catch (err) {
-		console.log("error in page evaluate", err);
+		console.log("error in page evaluate:\n", err);
 	}
 
 	try {
 		while (openedPages.length > 0) {
 			console.log("pages:", openedPages.length);
-			await delay(1000); // Add a delay to prevent busy waiting
+			await new Promise((resolve) => setTimeout(resolve, 1000)); // Add a delay to prevent busy waiting
 		}
 		console.log("All opened pages closed");
 	} catch (err) {
-		console.log("err after the page.eval", err);
+		console.log("err after the page.eval:\n", err);
 	}
 }

@@ -15,7 +15,6 @@ import {
 	timestamp,
 	varchar,
 } from "drizzle-orm/pg-core";
-import { z } from "zod";
 import { ALL_PROPERTY_AMENITIES } from "./propertyAmenities";
 import { users } from "./users";
 
