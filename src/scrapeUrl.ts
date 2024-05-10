@@ -40,7 +40,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 	let numProps = await page.evaluate(async () => {
 		const overflowYScrollElements =
 			document.getElementsByClassName("overflow-y-scroll");
-		return overflowYScrollElements.length;
+		return overflowYScrollElements[0].children.length;
 	});
 	console.log("total number of properties:", numProps);
 
