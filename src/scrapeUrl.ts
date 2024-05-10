@@ -36,10 +36,13 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			return element ? element.scrollHeight : -1;
 		});
 
-		// currentScrollHeight = await page.evaluate(() => {
-		// 	const element = document.getElementsByClassName("overflow-y-scroll")[0];
-		// });
 	}
+	let numProps = await page.evaluate(async () => {
+		const overflowYScrollElements =
+			document.getElementsByClassName("overflow-y-scroll");
+		return overflowYScrollElements.length;
+	});
+	console.log("total number of properties:", numProps);
 
 	await new Promise((resolve) => setTimeout(resolve, 2000));
 	let propertyNumber = 0;
@@ -69,9 +72,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 		}
 
 		if (allDates.length === 0) {
-			console.log(
-				`no dates found for property, skipping: "${propertyId}"`
-			);
+			console.log(`no dates found for property, skipping: "${propertyId}"`);
 			return;
 		}
 
@@ -98,9 +99,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 					const titleWrapperDiv = div.querySelector(
 						'[data-qa="property-title"]'
 					);
-					const propertyType = div.querySelector(
-						'[data-qa="property-type"]'
-					);
+					const propertyType = div.querySelector('[data-qa="property-type"]');
 					const propertyAddress = div.querySelector(
 						'[data-qa="property-address"]'
 					);
@@ -116,8 +115,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 						propertyType: propertyType?.textContent?.trim(),
 						address: propertyAddress?.textContent?.trim(),
 						maxNumGuests: +(
-							propertyGuestsLabel?.textContent?.split(" ")[0] ??
-							""
+							propertyGuestsLabel?.textContent?.split(" ")[0] ?? ""
 						),
 						originalNightlyPrice:
 							parseFloat(
@@ -138,17 +136,13 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 		await page.evaluate(async () => {
 			let element = document.querySelector(".overflow-y-scroll");
 			if (!element) {
-				element = document.querySelector(
-					'div[data-property-list="true"]'
-				);
+				element = document.querySelector('div[data-property-list="true"]');
 			}
 			if (element) {
 				const divs = Array.from(element.children);
 				// console.log("count", divs.length);
 				for (let i = 0; i < divs.length; i++) {
-					const bookNowButton = divs[i].querySelector(
-						'[data-qa="book-now"]'
-					);
+					const bookNowButton = divs[i].querySelector('[data-qa="book-now"]');
 					if (bookNowButton) {
 						bookNowButton.dispatchEvent(
 							new MouseEvent("click", {
@@ -161,9 +155,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 						const timeout = 15000;
 						const startTime = Date.now();
 						while (Date.now() - startTime < timeout) {
-							await new Promise((resolve) =>
-								setTimeout(resolve, 1000)
-							);
+							await new Promise((resolve) => setTimeout(resolve, 1000));
 						}
 
 						console.log("laksdfkl");
