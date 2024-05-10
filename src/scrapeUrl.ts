@@ -42,6 +42,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 	}
 
 	await new Promise((resolve) => setTimeout(resolve, 2000));
+	let propertyNumber = 0;
 
 	browser.on("targetcreated", async (target) => {
 		const newPage = await target.page();
@@ -80,8 +81,9 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			.onConflictDoNothing();
 
 		console.log(
-			`upserted ${allDates.length} dates to property ${propertyId}`
+			`${propertyNumber}: upserted ${allDates.length} dates to property ${propertyId}`
 		);
+		propertyNumber++;
 	});
 
 	try {
