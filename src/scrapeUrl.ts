@@ -45,7 +45,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 	console.log("total number of properties:", numProps);
 
 	await new Promise((resolve) => setTimeout(resolve, 2000));
-	let propertyNumber = 0;
+	let propertyNumber = -1;
 
 	browser.on("targetcreated", async (target) => {
 		const newPage = await target.page();
@@ -59,6 +59,8 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 
 		await newPage.close();
 		openedPages.splice(openedPages.indexOf(newPage), 1);
+
+		propertyNumber++;
 
 		const propertyId = await db.query.properties
 			.findFirst({
@@ -84,7 +86,6 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 		console.log(
 			`${propertyNumber}: upserted ${allDates.length} dates to property ${propertyId}`
 		);
-		propertyNumber++;
 	});
 
 	try {
