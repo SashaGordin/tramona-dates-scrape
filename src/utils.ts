@@ -2,7 +2,7 @@ import puppeteer from "puppeteer";
 
 export async function lauchPuppeteer() {
 	return await puppeteer.launch({
-		// headless: false,
+		headless: false,
 		args: [
 			`--window-size=1920,1080`,
 			"--disable-background-timer-throttling",
@@ -13,6 +13,6 @@ export async function lauchPuppeteer() {
 			width: 1920,
 			height: 1080,
 		},
-		timeout: 4000000,
+		protocolTimeout: 4000000,
 	});
 }

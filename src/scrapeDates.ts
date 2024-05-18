@@ -11,16 +11,17 @@ export async function scrapeDates(page: Page) {
 
 	return await page.evaluate(async () => {
 		//grab all text
-		const propertyDescriptions = document.querySelectorAll(
-			'[class*="propertyDescription"]:not([class*="propertyDescriptionWrapper"])'
-		);
-		const propertyTexts = Array.from(propertyDescriptions)
-			.map((description) => description.textContent?.trim())
-			.filter(Boolean)
-			.toString();
+		const url = window.location.href;
+		// const propertyDescriptions = document.querySelectorAll(
+		// 	'[class*="propertyDescription"]:not([class*="propertyDescriptionWrapper"])'
+		// );
+		// const propertyTexts = Array.from(propertyDescriptions)
+		// 	.map((description) => description.textContent?.trim())
+		// 	.filter(Boolean)
+		// 	.toString();
 
-		const titleEndIndex = propertyTexts.indexOf("Description");
-		const title = propertyTexts.substring(0, titleEndIndex);
+		// const titleEndIndex = propertyTexts.indexOf("Description");
+		// const title = propertyTexts.substring(0, titleEndIndex);
 
 		//grab all dates
 		const allDateStrings: string[] = [];
@@ -85,6 +86,6 @@ export async function scrapeDates(page: Page) {
 			});
 		}
 
-		return { allDateStrings, title };
+		return { allDateStrings, url };
 	});
 }

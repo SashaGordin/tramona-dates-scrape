@@ -53,7 +53,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 
 		openedPages.push(newPage);
 
-		const { title, allDateStrings } = await scrapeDates(newPage);
+		const { allDateStrings, url } = await scrapeDates(newPage);
 
 		const allDates = allDateStrings.map((s) => new Date(s));
 
@@ -64,12 +64,12 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 
 		const propertyId = await db.query.properties
 			.findFirst({
-				where: eq(properties.name, title),
+				where: eq(properties.originalListingUrl, url),
 			})
 			.then((res) => res?.id);
 
 		if (!propertyId) {
-			console.log(`property not found, skipping: "${title}"`);
+			console.log(`property not found, skipping: "${url}"`);
 			return;
 		}
 
@@ -88,50 +88,50 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 		);
 	});
 
-	try {
-		const propertiesData = await page.evaluate(async () => {
-			const element =
-				document.querySelector(".overflow-y-scroll") ??
-				document.querySelector('div[data-property-list="true"]');
+	// try {
+	// 	const propertiesData = await page.evaluate(async () => {
+	// 		const element =
+	// 			document.querySelector(".overflow-y-scroll") ??
+	// 			document.querySelector('div[data-property-list="true"]');
 
-			if (element) {
-				const divs = Array.from(element.children);
-				for (const div of divs) {
-					const titleWrapperDiv = div.querySelector(
-						'[data-qa="property-title"]'
-					);
-					const propertyType = div.querySelector('[data-qa="property-type"]');
-					const propertyAddress = div.querySelector(
-						'[data-qa="property-address"]'
-					);
-					const propertyGuestsLabel = div.querySelector(
-						'[data-qa="property-guests-label"]'
-					);
-					const propertyFooterSpan = div.querySelector(
-						'div[class*="propertyFooter"] span'
-					);
+	// 		if (element) {
+	// 			const divs = Array.from(element.children);
+	// 			for (const div of divs) {
+	// 				const titleWrapperDiv = div.querySelector(
+	// 					'[data-qa="property-title"]'
+	// 				);
+	// 				const propertyType = div.querySelector('[data-qa="property-type"]');
+	// 				const propertyAddress = div.querySelector(
+	// 					'[data-qa="property-address"]'
+	// 				);
+	// 				const propertyGuestsLabel = div.querySelector(
+	// 					'[data-qa="property-guests-label"]'
+	// 				);
+	// 				const propertyFooterSpan = div.querySelector(
+	// 					'div[class*="propertyFooter"] span'
+	// 				);
 
-					const propertyData = {
-						name: titleWrapperDiv?.textContent?.trim(),
-						propertyType: propertyType?.textContent?.trim(),
-						address: propertyAddress?.textContent?.trim(),
-						maxNumGuests: +(
-							propertyGuestsLabel?.textContent?.split(" ")[0] ?? ""
-						),
-						originalNightlyPrice:
-							parseFloat(
-								propertyFooterSpan!
-									.textContent!.replace(/,/g, "")
-									.trim()
-									.slice(1)
-							) * 100,
-					};
-				}
-			}
-		});
-	} catch (err) {
-		console.log("error in original page:\n", err);
-	}
+	// 				const propertyData = {
+	// 					name: titleWrapperDiv?.textContent?.trim(),
+	// 					propertyType: propertyType?.textContent?.trim(),
+	// 					address: propertyAddress?.textContent?.trim(),
+	// 					maxNumGuests: +(
+	// 						propertyGuestsLabel?.textContent?.split(" ")[0] ?? ""
+	// 					),
+	// 					originalNightlyPrice:
+	// 						parseFloat(
+	// 							propertyFooterSpan!
+	// 								.textContent!.replace(/,/g, "")
+	// 								.trim()
+	// 								.slice(1)
+	// 						) * 100,
+	// 				};
+	// 			}
+	// 		}
+	// 	});
+	// } catch (err) {
+	// 	console.log("error in original page:\n", err);
+	// }
 
 	try {
 		await page.evaluate(async () => {
