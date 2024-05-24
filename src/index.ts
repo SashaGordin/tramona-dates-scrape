@@ -282,25 +282,24 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 async function main() {
-	console.log("Starting scraping...");
+	while (true) {
 		for (const url of urls) {
-			console.log("Scraping url:", url);
 			try {
-				console.log('ajksdf')
 				const browser = await lauchPuppeteer();
-				console.log('does this work')
 				const page = await browser.newPage();
-				console.log('adsf');
 				await scrapeUrl(browser, page, url); // Retrieve data from scrapeUrl function
-				console.log('close');
 				await browser.close();
 			} catch (error) {
 				console.log("scraping failed:", error);
 			}
 		}
-
+	}
 }
 
-main();
-console.log('asdfasdf')
-process.exit();
+main().then(() => {
+	console.log('Scraping completed');
+	process.exit();
+}).catch(error => {
+	console.error('Error in main:', error);
+});
+// process.exit();
