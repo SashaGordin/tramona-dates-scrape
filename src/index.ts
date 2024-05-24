@@ -285,6 +285,7 @@ async function main() {
 	console.log("Starting scraping...");
 	while (true) {
 		for (const url of urls) {
+			console.log("Scraping url:", url);
 			try {
 				const browser = await lauchPuppeteer();
 				const page = await browser.newPage();
