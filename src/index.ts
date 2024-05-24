@@ -299,5 +299,5 @@ async function main() {
 }
 
 main();
-
+console.log('asdfasdf')
 process.exit();
