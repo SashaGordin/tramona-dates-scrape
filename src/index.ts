@@ -282,6 +282,7 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 async function main() {
+	console.log("Starting scraping...");
 	while (true) {
 		for (const url of urls) {
 			try {
