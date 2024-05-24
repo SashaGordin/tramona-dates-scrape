@@ -288,6 +288,7 @@ async function main() {
 			try {
 				console.log('ajksdf')
 				const browser = await lauchPuppeteer();
+				console.log('does this work')
 				const page = await browser.newPage();
 				console.log('adsf');
 				await scrapeUrl(browser, page, url); // Retrieve data from scrapeUrl function
