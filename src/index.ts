@@ -289,7 +289,9 @@ async function main() {
 			try {
 				const browser = await lauchPuppeteer();
 				const page = await browser.newPage();
+				console.log('adsf');
 				await scrapeUrl(browser, page, url); // Retrieve data from scrapeUrl function
+				console.log('close');
 				await browser.close();
 			} catch (error) {
 				console.log("scraping failed:", error);
