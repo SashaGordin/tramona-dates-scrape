@@ -286,6 +286,7 @@ async function main() {
 		for (const url of urls) {
 			console.log("Scraping url:", url);
 			try {
+				console.log('ajksdf')
 				const browser = await lauchPuppeteer();
 				const page = await browser.newPage();
 				console.log('adsf');
@@ -296,7 +297,7 @@ async function main() {
 				console.log("scraping failed:", error);
 			}
 		}
-	
+
 }
 
 main();
