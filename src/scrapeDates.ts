@@ -30,7 +30,12 @@ export async function scrapeDates(page: Page) {
 			document.querySelectorAll<HTMLButtonElement>(
 				'[class*="Button-content"]'
 			);
-		expandCalendarButton[0].click();
+
+		try {
+			expandCalendarButton[0].click();
+		} catch (err) {
+			console.log("error while clicking dates1:\n", err);
+		}
 
 		await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -43,7 +48,7 @@ export async function scrapeDates(page: Page) {
 			try {
 				expandCalendarButton.click();
 			} catch (err) {
-				console.log("error while clicking dates:\n", err);
+				console.log("error while clicking dates2:\n", err);
 			}
 
 			await new Promise((resolve) => setTimeout(resolve, 1000));
