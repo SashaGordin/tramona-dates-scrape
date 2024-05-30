@@ -31,7 +31,7 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			if (element) {
 				element.scrollTo(0, element.scrollHeight);
 			}
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1500));
 
 			return element ? element.scrollHeight : -1;
 		});
@@ -40,7 +40,11 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 	let numProps = await page.evaluate(async () => {
 		const overflowYScrollElements =
 			document.getElementsByClassName("overflow-y-scroll");
-		return overflowYScrollElements[0].children.length;
+		if (overflowYScrollElements.length !== 0) {
+			return overflowYScrollElements[0].children.length;
+		} else {
+			return document.querySelectorAll('div[data-property-list="true"]')[0].children.length;
+		}
 	});
 	console.log("total number of properties:", numProps);
 
@@ -78,60 +82,65 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 			return;
 		}
 
-		await db
-			.insert(bookedDates)
-			.values(allDates.map((date) => ({ date, propertyId })))
-			.onConflictDoNothing();
+		await db.transaction(async (db) => {
+			await db
+				.delete(bookedDates)
+				.where(eq(bookedDates.propertyId, propertyId));
+
+			await db
+				.insert(bookedDates)
+				.values(allDates.map((date) => ({ date, propertyId })));
+		});
 
 		console.log(
 			`${propertyNumber}: upserted ${allDates.length} dates to property ${propertyId}`
 		);
 	});
 
-	// try {
-	// 	const propertiesData = await page.evaluate(async () => {
-	// 		const element =
-	// 			document.querySelector(".overflow-y-scroll") ??
-	// 			document.querySelector('div[data-property-list="true"]');
+	try {
+		const propertiesData = await page.evaluate(async () => {
+			const element =
+				document.querySelector(".overflow-y-scroll") ??
+				document.querySelector('div[data-property-list="true"]');
 
-	// 		if (element) {
-	// 			const divs = Array.from(element.children);
-	// 			for (const div of divs) {
-	// 				const titleWrapperDiv = div.querySelector(
-	// 					'[data-qa="property-title"]'
-	// 				);
-	// 				const propertyType = div.querySelector('[data-qa="property-type"]');
-	// 				const propertyAddress = div.querySelector(
-	// 					'[data-qa="property-address"]'
-	// 				);
-	// 				const propertyGuestsLabel = div.querySelector(
-	// 					'[data-qa="property-guests-label"]'
-	// 				);
-	// 				const propertyFooterSpan = div.querySelector(
-	// 					'div[class*="propertyFooter"] span'
-	// 				);
+			if (element) {
+				const divs = Array.from(element.children);
+				for (const div of divs) {
+					const titleWrapperDiv = div.querySelector(
+						'[data-qa="property-title"]'
+					);
+					const propertyType = div.querySelector('[data-qa="property-type"]');
+					const propertyAddress = div.querySelector(
+						'[data-qa="property-address"]'
+					);
+					const propertyGuestsLabel = div.querySelector(
+						'[data-qa="property-guests-label"]'
+					);
+					const propertyFooterSpan = div.querySelector(
+						'div[class*="propertyFooter"] span'
+					);
 
-	// 				const propertyData = {
-	// 					name: titleWrapperDiv?.textContent?.trim(),
-	// 					propertyType: propertyType?.textContent?.trim(),
-	// 					address: propertyAddress?.textContent?.trim(),
-	// 					maxNumGuests: +(
-	// 						propertyGuestsLabel?.textContent?.split(" ")[0] ?? ""
-	// 					),
-	// 					originalNightlyPrice:
-	// 						parseFloat(
-	// 							propertyFooterSpan!
-	// 								.textContent!.replace(/,/g, "")
-	// 								.trim()
-	// 								.slice(1)
-	// 						) * 100,
-	// 				};
-	// 			}
-	// 		}
-	// 	});
-	// } catch (err) {
-	// 	console.log("error in original page:\n", err);
-	// }
+					const propertyData = {
+						name: titleWrapperDiv?.textContent?.trim(),
+						propertyType: propertyType?.textContent?.trim(),
+						address: propertyAddress?.textContent?.trim(),
+						maxNumGuests: +(
+							propertyGuestsLabel?.textContent?.split(" ")[0] ?? ""
+						),
+						originalNightlyPrice:
+							parseFloat(
+								propertyFooterSpan!
+									.textContent!.replace(/,/g, "")
+									.trim()
+									.slice(1)
+							) * 100,
+					};
+				}
+			}
+		});
+	} catch (err) {
+		console.log("error in original page:\n", err);
+	}
 
 	try {
 		await page.evaluate(async () => {
@@ -152,7 +161,6 @@ export async function scrapeUrl(browser: Browser, page: Page, url: string) {
 							})
 						);
 
-						console.log("testlklk");
 						const timeout = 15000;
 						const startTime = Date.now();
 						while (Date.now() - startTime < timeout) {

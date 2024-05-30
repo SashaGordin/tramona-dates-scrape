@@ -280,7 +280,7 @@ const urls = [
 	"https://mikezvacations.guestybookings.com/properties",
 	"https://staylocalatx.guestybookings.com/properties",
 	"https://hotedegammevendee.guestybookings.com/properties",
-	"https://staywithhideaway.guestybookings.com/properties",
+	// "https://staywithhideaway.guestybookings.com/properties",
 	"https://unwrittenstays.guestybookings.com/properties",
 	"https://thectbrothers.guestybookings.com/properties",
 	"https://seagrapehospitality.guestybookings.com/properties",
@@ -399,8 +399,14 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 async function main() {
-	while (true) {
+	let running = true;
+	 process.on('SIGINT', async () => {
+        running = false;
+        console.log("Stopping script...");
+    });
+	while (running) {
 		for (const url of urls) {
+			if (!running) break;
 			try {
 				const browser = await lauchPuppeteer();
 				const page = await browser.newPage();
@@ -411,12 +417,12 @@ async function main() {
 			}
 		}
 	}
+	process.exit();
 }
 
-main().then(() => {
-	console.log('Scraping completed');
-	process.exit();
-}).catch(error => {
-	console.error('Error in main:', error);
+
+main().catch(error => {
+    console.error('Error in main:', error);
+    process.exit(1);
 });
 // process.exit();

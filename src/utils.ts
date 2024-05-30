@@ -3,6 +3,7 @@ import puppeteer from "puppeteer";
 export async function lauchPuppeteer() {
 	return await puppeteer.launch({
 		headless: "new",
+		// headless: false,
 		args: [
 			`--window-size=1920,1080`,
 			"--disable-background-timer-throttling",

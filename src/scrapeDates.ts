@@ -69,7 +69,7 @@ export async function scrapeDates(page: Page) {
 			);
 			const filteredAriaLabels = Array.from(tdElements).filter((td) => {
 				const ariaLabel = td.getAttribute("aria-label")!;
-				return ariaLabel.includes(month) && !ariaLabel.includes("Not");
+				return ariaLabel.includes(month) && ariaLabel.includes("Not");
 			});
 
 			filteredAriaLabels.forEach((td) => {
