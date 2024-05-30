@@ -61,6 +61,8 @@ export async function scrapeDates(page: Page) {
 				"div.CalendarMonth_caption"
 			)[1].textContent!;
 
+			console.log("calendarCaptionText:", calendarCaptionText);
+
 			const month = calendarCaptionText.substring(
 				0,
 				calendarCaptionText.length - 5
