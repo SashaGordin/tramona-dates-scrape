@@ -31,6 +31,8 @@ export async function scrapeDates(page: Page) {
 				'[class*="Button-content"]'
 			);
 
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 		try {
 			expandCalendarButton[0].click();
 		} catch (err) {
